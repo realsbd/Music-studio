@@ -1,0 +1,8 @@
+.vercel
+node_modules/
+dist/
+test-results/
+playwright-report/
+.artifacts/
+# Keep the original Blender export locally; deploy the optimized asset.
+/Music_studio.glb

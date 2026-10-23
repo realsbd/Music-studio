@@ -1,0 +1,7 @@
+Music_studio.glb
+node_modules
+dist
+.artifacts
+test-results
+playwright-report
+.kilo

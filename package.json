@@ -1,0 +1,38 @@
+{
+  "name": "music-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.29.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "optimize:model": "node scripts/optimize-model.mjs",
+    "test": "playwright test"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@fontsource/bebas-neue": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "meshoptimizer": "^0.24.0",
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.2.1",
+    "@gltf-transform/extensions": "^4.2.1",
+    "@gltf-transform/functions": "^4.2.1",
+    "@playwright/test": "^1.56.1",
+    "draco3dgltf": "^1.5.7",
+    "sharp": "^0.35.5",
+    "vite": "^7.1.7"
+  }
+}
