@@ -2,13 +2,13 @@ import * as THREE from 'three';
 
 const atmospheres = new WeakMap();
 
-// Change just the architectural finishes. The roof already has an emissive
-// star texture; keeping it avoids layering a second star field over the model.
+// Keep the authored room finishes intact except for the selected star ceiling.
 function finishSurfaces(model) {
-  const ceiling = model.getObjectByName('Roof');
+  const ceiling = model.getObjectByName('Roof') ?? model.getObjectByName('roof');
   ceiling?.traverse(node => {
     if (!node.isMesh) return;
     const finish = material => {
+      if (material.name === 'roof_light') return material;
       const copy = material.clone();
       copy.color.set(0x050507);
       copy.roughness = 0.98;
@@ -18,28 +18,6 @@ function finishSurfaces(model) {
     node.material = Array.isArray(node.material) ? node.material.map(finish) : finish(node.material);
   });
 
-  // These meshes also contain the floor and trim: select the wall material,
-  // and clone it so the black Studio_Block wall stays black.
-  const greyWall = new Map();
-  for (const name of ['Main_Studio', 'RecordingBooth']) {
-    model.getObjectByName(name)?.traverse(node => {
-      if (!node.isMesh) return;
-      const finish = material => {
-        if (material.name !== 'wall') return material;
-        if (!greyWall.has(material)) {
-          const copy = material.clone();
-          copy.color.set(0x77797d);
-          copy.metalness = 0;
-          copy.roughness = 0.92;
-          copy.envMapIntensity = 0.25;
-          if (copy.specularColor) copy.specularColor.set(0xffffff);
-          greyWall.set(material, copy);
-        }
-        return greyWall.get(material);
-      };
-      node.material = Array.isArray(node.material) ? node.material.map(finish) : finish(node.material);
-    });
-  }
 }
 
 function addDiffuser(model) {

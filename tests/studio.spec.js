@@ -34,15 +34,16 @@ test.afterAll(async () => {
   if (cdnServer) await new Promise(resolve => cdnServer.close(resolve));
 });
 
-test('production output contains the optimized, fingerprinted model', async () => {
+test('production output contains the full-detail, fingerprinted model', async () => {
   const files = await readdir('dist/assets');
   const models = files.filter(name => name.endsWith('.glb'));
   expect(models).toHaveLength(1);
   expect(models[0]).toMatch(/^music-studio-[\w-]+\.glb$/);
   expect((await stat(`dist/assets/${models[0]}`)).size).toBe(asset.byteLength);
-  expect(asset.byteLength).toBeLessThan(20_000_000);
-  expect(asset.byteLength / asset.originalBytes).toBeLessThan(0.23);
-  expect(asset.triangles).toBeLessThan(1_600_000);
+  expect(asset.byteLength).toBeLessThan(30_000_000);
+  expect(asset.byteLength / asset.originalBytes).toBeLessThan(0.3);
+  expect(asset.triangles).toBeGreaterThan(asset.originalTriangles * 0.98);
+  expect(asset.triangles).toBeLessThanOrEqual(asset.originalTriangles);
   expect(await readdir('dist')).not.toContain('Music_studio.glb');
 });
 
@@ -100,11 +101,34 @@ test('desktop loads without a CDN, renders moving smoke, and opens all hotspots'
   });
   await page.mouse.click(point.x, point.y);
   await expect(page.locator('#overlay.active h2')).toHaveText('Beat Store');
+  await expect(page.locator('#overlay.active p').first()).toHaveText(
+    'Browse and license exclusive G.LO Beatz directly from the store. Premium instrumentals crafted for artists looking for something different.'
+  );
   await page.getByRole('button', { name: 'Back', exact: false }).click();
   await page.waitForFunction(() => __studio.isSettled());
-  for (const [id, title] of [['tv', 'Videos'], ['computer', 'Bio & Services'], ['painting', 'Gallery'], ['phone', 'Contact']]) {
+  const panels = [
+    ['tv', 'Catalogue & Credits', "Record Producer with a vision, I don't go to work, I put in work I'm the difference. Browse through my catalogue, browse through Toronto history."],
+    ['computer', 'Bio & Services', null],
+    ['painting', 'Gallery', 'A visual archive of moments, art, and creative milestones.'],
+    ['phone', 'Contact', "Ready to lock in? Reach out and let's make it happen."],
+  ];
+  for (const [id, title, description] of panels) {
     await page.evaluate(id => __studio.clickHotspot(id), id);
     await expect(page.locator('#overlay.active h2')).toHaveText(title);
+    if (description) await expect(page.locator('#overlay.active p').first()).toHaveText(description);
+    if (id === 'tv') {
+      const yearGroups = page.locator('#overlay.active .video-year-group');
+      const videoLinks = page.locator('#overlay.active .video-link-card');
+      await expect(yearGroups).toHaveCount(6);
+      await expect(videoLinks).toHaveCount(74);
+      expect(await yearGroups.evaluateAll(groups => groups.map(group => group.querySelectorAll('a').length)))
+        .toEqual([9, 10, 30, 12, 9, 4]);
+      await expect(videoLinks.first()).toHaveAttribute('href', 'https://www.youtube.com/watch?v=6KfKKQSNewo');
+      await expect(videoLinks.last()).toHaveAttribute('href', 'https://www.youtube.com/watch?v=QC-9Ujv4dM8');
+      expect(await videoLinks.evaluateAll(links => links.every(link =>
+        link.target === '_blank' && link.rel === 'noopener noreferrer'
+      ))).toBe(true);
+    }
     await page.keyboard.press('Escape');
     await expect(page.locator('#overlay')).not.toHaveClass('active');
     await page.waitForFunction(() => __studio.isSettled());

@@ -74,7 +74,7 @@ const HOTSPOTS = [
   },
   {
     id: 'tv',
-    label: 'Videos  •  TV',
+    label: 'Catalogue & Credits  •  TV',
     position:     new THREE.Vector3( 0.00, 2.25, -5.05),  // in front of the screen
     cameraPos:    new THREE.Vector3( 0.00, 2.08, -2.70),
     cameraLookAt: new THREE.Vector3(-0.01, 2.25, -5.35)
@@ -102,6 +102,146 @@ const HOTSPOTS = [
   }
 ];
 
+const VIDEO_CATALOGUE = [
+  {
+    label: '8 Years',
+    videos: [
+      'https://www.youtube.com/watch?v=6KfKKQSNewo',
+      'https://www.youtube.com/watch?v=aau1r5nixlU',
+      'https://www.youtube.com/watch?v=E4uYZWGomLA',
+      'https://www.youtube.com/watch?v=gp0xLXGsAao',
+      'https://www.youtube.com/watch?v=bAcZUE7apFQ',
+      'https://www.youtube.com/watch?v=AYRSxKCf_oE',
+      'https://www.youtube.com/watch?v=PoQ_270Bcjc',
+      'https://www.youtube.com/watch?v=6U9Fmet-1So',
+      'https://www.youtube.com/watch?v=YMqIGJ7iIXY&list=RDYMqIGJ7iIXY&start_radio=1',
+    ],
+  },
+  {
+    label: '7 Years',
+    videos: [
+      'https://www.youtube.com/watch?v=w19fN6PEkFM',
+      'https://www.youtube.com/watch?v=iIZfWbR3PJE',
+      'https://www.youtube.com/watch?v=I_UOpZbK6VA',
+      'https://www.youtube.com/watch?v=h18fT5jhQ-c',
+      'https://www.youtube.com/watch?v=qHvM_--B4Ik',
+      'https://www.youtube.com/watch?v=_skg4Nc0RHU',
+      'https://www.youtube.com/watch?v=ZlzKQNiQyqI',
+      'https://www.youtube.com/watch?v=TL19AOJttbU',
+      'https://www.youtube.com/watch?v=7ud4i71og0M',
+      'https://www.youtube.com/watch?v=5rJCuZ2uSGw',
+    ],
+  },
+  {
+    label: '6 Years',
+    videos: [
+      'https://www.youtube.com/watch?v=NP3Ycfko6lk',
+      'https://www.youtube.com/watch?v=ZrwYUawx6WQ',
+      'https://www.youtube.com/watch?v=pqOXAkRlq28',
+      'https://www.youtube.com/watch?v=Ziu2d6jmfdo',
+      'https://www.youtube.com/watch?v=ukDsQfpTpYk',
+      'https://www.youtube.com/watch?v=80I_erS1OgU',
+      'https://www.youtube.com/watch?v=isYsNRpy6-g',
+      'https://www.youtube.com/watch?v=gqOGle7Qwcs',
+      'https://www.youtube.com/watch?v=0TU2V5tibMc',
+      'https://www.youtube.com/watch?v=MTIXSq1nsY4',
+      'https://www.youtube.com/watch?v=FmevpD4Tokk',
+      'https://www.youtube.com/watch?v=SP2vIHPN8o4',
+      'https://www.youtube.com/watch?v=A8bm91lpPTQ',
+      'https://www.youtube.com/watch?v=aBwBCSIP8QU',
+      'https://www.youtube.com/watch?v=-sKYMXgE9Wk',
+      'https://www.youtube.com/watch?v=dnD560tnME4',
+      'https://www.youtube.com/watch?v=0FBbVw5Ja6k',
+      'https://www.youtube.com/watch?v=bhRiju5Dkkw',
+      'https://www.youtube.com/watch?v=gBCJahmrcp8',
+      'https://www.youtube.com/watch?v=8V0WB2KJmRE',
+      'https://www.youtube.com/watch?v=WOM24-mgzFI',
+      'https://www.youtube.com/watch?v=bdnYnYivDho',
+      'https://www.youtube.com/watch?v=ScK7ghkokyQ',
+      'https://www.youtube.com/watch?v=TTu2boWalk4',
+      'https://www.youtube.com/watch?v=yEIe7N7iLjw',
+      'https://www.youtube.com/watch?v=rUa6FEhGN1w',
+      'https://www.youtube.com/watch?v=ZKh6MMyQyyk',
+      'https://www.youtube.com/watch?v=JDkqLhRt6h0',
+      'https://www.youtube.com/watch?v=Zlk_HAjqTOM&list=RDZlk_HAjqTOM&start_radio=1',
+      'https://www.youtube.com/watch?v=uH9dFtDCMC4&list=RDuH9dFtDCMC4&start_radio=1',
+    ],
+  },
+  {
+    label: '5 Years',
+    videos: [
+      'https://www.youtube.com/watch?v=Ro66KTeoQ8M',
+      'https://www.youtube.com/watch?v=jSS5spZmDNs',
+      'https://www.youtube.com/watch?v=wRC8SaSvPPM',
+      'https://www.youtube.com/watch?v=oYmi231nI_U',
+      'https://www.youtube.com/watch?v=AfCuyGljIoE',
+      'https://www.youtube.com/watch?v=Zlk_HAjqTOM',
+      'https://www.youtube.com/watch?v=ZdWr7lRQ2N8',
+      'https://www.youtube.com/watch?v=EnWCMS9ARdo',
+      'https://www.youtube.com/watch?v=uH9dFtDCMC4',
+      'https://www.youtube.com/watch?v=z7mMMTnXc_4',
+      'https://www.youtube.com/watch?v=M1-48IgkmF8',
+      'https://www.youtube.com/watch?v=k5sydUOoAlY',
+    ],
+  },
+  {
+    label: '4 Years',
+    videos: [
+      'https://www.youtube.com/watch?v=mvM-NWZR3Nc',
+      'https://www.youtube.com/watch?v=n5Naz6nnBRY',
+      'https://www.youtube.com/watch?v=dgND2xKk2-o',
+      'https://www.youtube.com/watch?v=q-CkWV3wKsA',
+      'https://www.youtube.com/watch?v=j0WSRNiQYA0',
+      'https://www.youtube.com/watch?v=5ssYg-Xz1dI',
+      'https://www.youtube.com/watch?v=fDqNXcKoEIQ',
+      'https://www.youtube.com/watch?v=z87odR623YA',
+      'https://www.youtube.com/watch?v=-ea2sBWvtXE',
+    ],
+  },
+  {
+    label: '3 Years',
+    videos: [
+      'https://www.youtube.com/watch?v=UmtgjYDK85Y',
+      'https://www.youtube.com/watch?v=hzLjPUeWaiM',
+      'https://www.youtube.com/watch?v=PI_u7yYus2s',
+      'https://www.youtube.com/watch?v=QC-9Ujv4dM8',
+    ],
+  },
+];
+
+function renderVideoCatalogue() {
+  return `
+    <div class="video-catalogue">
+      ${VIDEO_CATALOGUE.map((group, groupIndex) => `
+        <details class="video-year-group" ${groupIndex === 0 ? 'open' : ''}>
+          <summary>
+            <span class="video-year-label">${group.label}</span>
+            <span class="video-year-count">${group.videos.length} videos</span>
+            <span class="video-year-chevron" aria-hidden="true"></span>
+          </summary>
+          <div class="video-link-grid">
+            ${group.videos.map((url, videoIndex) => `
+              <a
+                class="video-link-card"
+                href="${url}"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="${group.label}, video ${videoIndex + 1}: open on YouTube"
+              >
+                <span class="video-play" aria-hidden="true"></span>
+                <span class="video-link-copy">
+                  <strong>Video ${String(videoIndex + 1).padStart(2, '0')}</strong>
+                  <span>Watch on YouTube</span>
+                </span>
+              </a>
+            `).join('')}
+          </div>
+        </details>
+      `).join('')}
+    </div>
+  `;
+}
+
 // =====================================================================
 // OVERLAY CONTENT MAP
 // =====================================================================
@@ -109,7 +249,7 @@ const OVERLAY_CONTENT = {
   beatstars: `
     <button class="back-btn" id="back-btn">← Back</button>
     <h2>Beat Store</h2>
-    <p>Browse and license exclusive beats directly from the store. Premium instrumentals crafted for artists who demand the best.</p>
+    <p>Browse and license exclusive G.LO Beatz directly from the store. Premium instrumentals crafted for artists looking for something different.</p>
     <div class="iframe-placeholder">
       <p>BeatStars Player</p>
       <small>Replace this with your BeatStars embed code</small>
@@ -118,54 +258,9 @@ const OVERLAY_CONTENT = {
   `,
   tv: `
     <button class="back-btn" id="back-btn">← Back</button>
-    <h2>Videos</h2>
-    <div class="video-grid">
-      <a href="#" target="_blank" class="video-card">
-        <div class="video-thumb">
-          <div class="play-btn-circle">
-            <svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg>
-          </div>
-        </div>
-        <div class="video-info">
-          <div class="video-title">Studio Session Vol. 1</div>
-          <span class="video-link">Watch on YouTube →</span>
-        </div>
-      </a>
-      <a href="#" target="_blank" class="video-card">
-        <div class="video-thumb">
-          <div class="play-btn-circle">
-            <svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg>
-          </div>
-        </div>
-        <div class="video-info">
-          <div class="video-title">Beat Making Process</div>
-          <span class="video-link">Watch on YouTube →</span>
-        </div>
-      </a>
-      <a href="#" target="_blank" class="video-card">
-        <div class="video-thumb">
-          <div class="play-btn-circle">
-            <svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg>
-          </div>
-        </div>
-        <div class="video-info">
-          <div class="video-title">Mixing &amp; Mastering Tips</div>
-          <span class="video-link">Watch on YouTube →</span>
-        </div>
-      </a>
-      <a href="#" target="_blank" class="video-card">
-        <div class="video-thumb">
-          <div class="play-btn-circle">
-            <svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg>
-          </div>
-        </div>
-        <div class="video-info">
-          <div class="video-title">Artist Spotlight</div>
-          <span class="video-link">Watch on YouTube →</span>
-        </div>
-      </a>
-    </div>
-    <a href="#" target="_blank" class="btn">Subscribe on YouTube →</a>
+    <h2>Catalogue &amp; Credits</h2>
+    <p>Record Producer with a vision, I don't go to work, I put in work I'm the difference. Browse through my catalogue, browse through Toronto history.</p>
+    ${renderVideoCatalogue()}
   `,
   computer: `
     <button class="back-btn" id="back-btn">← Back</button>
@@ -200,7 +295,7 @@ const OVERLAY_CONTENT = {
   painting: `
     <button class="back-btn" id="back-btn">← Back</button>
     <h2>Gallery</h2>
-    <p>A visual archive of moments, artwork, and creative milestones from inside the studio.</p>
+    <p>A visual archive of moments, art, and creative milestones.</p>
     <div class="gallery-grid">
       <div class="gallery-slot">
         <div class="plus">+</div>
@@ -231,7 +326,7 @@ const OVERLAY_CONTENT = {
   phone: `
     <button class="back-btn" id="back-btn">← Back</button>
     <h2>Contact</h2>
-    <p>Ready to create something incredible? Reach out and let's make it happen.</p>
+    <p>Ready to lock in? Reach out and let's make it happen.</p>
     <form class="contact-form" id="contact-form">
       <input type="text" placeholder="Your Name" required />
       <input type="email" placeholder="Your Email" required />

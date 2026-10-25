@@ -148,7 +148,10 @@ a, button, input, textarea, select {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #loading-screen, #loading-bar {
+  #loading-screen,
+  #loading-bar,
+  .video-year-chevron,
+  .video-link-card {
     transition: none;
   }
 }
@@ -310,73 +313,140 @@ a, button, input, textarea, select {
   margin-bottom: 20px;
 }
 
-/* ===== VIDEO GRID ===== */
-.video-grid {
+/* ===== VIDEO CATALOGUE ===== */
+.video-catalogue {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 10px;
 }
 
-.video-card {
+.video-year-group {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(201,168,76,0.12);
   border-radius: 10px;
   overflow: hidden;
-  text-decoration: none;
-  transition: border-color 0.2s ease, transform 0.2s ease;
-  cursor: pointer;
 }
 
-.video-card:hover {
+.video-year-group[open] {
   border-color: rgba(201,168,76,0.5);
-  transform: translateY(-2px);
-  cursor: pointer;
 }
 
-.video-thumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: rgba(0,0,0,0.5);
+.video-year-group summary {
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 12px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  list-style: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.video-year-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.video-year-group summary:hover {
+  background: rgba(201,168,76,0.06);
+}
+
+.video-year-group summary:focus-visible,
+.video-link-card:focus-visible {
+  outline: 2px solid #c9a84c;
+  outline-offset: -2px;
+}
+
+.video-year-label {
+  color: #c9a84c;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+}
+
+.video-year-count {
+  color: #aaa69e;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.video-year-chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid #c9a84c;
+  border-bottom: 1px solid #c9a84c;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+
+.video-year-group[open] .video-year-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+.video-link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.video-link-card {
+  min-height: 56px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.24);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 
-.play-btn-circle {
-  width: 36px;
-  height: 36px;
+.video-link-card:hover {
+  background: rgba(201,168,76,0.07);
+  border-color: rgba(201,168,76,0.35);
+  transform: translateY(-1px);
+}
+
+.video-play {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
   background: #c9a84c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.play-btn-circle svg {
-  width: 14px;
-  height: 14px;
-  fill: #0a0a0a;
+.video-play::before {
+  content: '';
+  width: 0;
+  height: 0;
   margin-left: 2px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #0a0a0a;
 }
 
-.video-info {
-  padding: 10px 12px;
+.video-link-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
 }
 
-.video-info .video-title {
-  color: #ffffff;
+.video-link-copy strong {
   font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 4px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
-.video-info .video-link {
-  color: #c9a84c;
-  font-size: 11px;
-  text-decoration: none;
-  letter-spacing: 0.05em;
+.video-link-copy span {
+  color: #aaa69e;
+  font-size: 10px;
+  letter-spacing: 0.04em;
 }
 
 /* ===== SERVICES GRID ===== */
@@ -572,6 +642,15 @@ a, button, input, textarea, select {
 }
 
 @media (max-width: 768px) {
+  .video-link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .video-year-group summary {
+    gap: 8px;
+    padding: 0 12px;
+  }
+
   #hud-hint {
     bottom: 16px;
     width: max-content;

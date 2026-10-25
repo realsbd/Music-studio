@@ -2,9 +2,9 @@ import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { NodeIO, getBounds } from '@gltf-transform/core';
 import { ALL_EXTENSIONS, EXTTextureWebP } from '@gltf-transform/extensions';
-import { compressTexture, dedup, listTextureSlots, meshopt, prune, simplifyPrimitive, weld } from '@gltf-transform/functions';
+import { compressTexture, dedup, listTextureSlots, meshopt, prune, weld } from '@gltf-transform/functions';
 import draco3d from 'draco3dgltf';
-import { MeshoptDecoder, MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer';
+import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 import sharp from 'sharp';
 
 // Run locally after exporting a new model. Vercel only needs the optimized
@@ -14,7 +14,7 @@ const output = fileURLToPath(new URL('../assets/music-studio.glb', import.meta.u
 const metadata = fileURLToPath(new URL('../assets/studio.json', import.meta.url));
 await mkdir(new URL('../assets/', import.meta.url), { recursive: true });
 
-await Promise.all([MeshoptDecoder.ready, MeshoptEncoder.ready, MeshoptSimplifier.ready]);
+await Promise.all([MeshoptDecoder.ready, MeshoptEncoder.ready]);
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
   'draco3d.decoder': await draco3d.createDecoderModule(),
   'meshopt.decoder': MeshoptDecoder,
@@ -31,8 +31,7 @@ const countTriangles = () => root.listMeshes().reduce((sum, mesh) => sum + mesh.
 const originalTriangles = countTriangles();
 
 // The old smoke cards intersect the desk, floor and ceiling. Their two large
-// PNGs are no longer needed by the procedural effect. Keep every other named
-// object and its world transform intact: navigation/hotspots depend on them.
+// PNGs are no longer needed by the procedural effect.
 const smokeEmitters = ['weed_Lit', 'weed_Lit.001'].map(name => {
   const node = root.listNodes().find(candidate => candidate.getName() === name);
   if (!node) throw new Error(`Smoke source "${name}" is missing in the model.`);
@@ -45,21 +44,24 @@ const smokeEmitters = ['weed_Lit', 'weed_Lit.001'].map(name => {
 for (const node of root.listNodes()) {
   if (/^smoke/i.test(node.getName())) node.dispose();
 }
+// Keep the currently selected procedural ceiling and diffuser treatments.
+// These authored nodes belong to visual changes 1 and 4, which remain active.
+const retainedRuntimeTreatments = /^(pCube14[6-9]|pCube15[01])$/;
+for (const node of root.listNodes()) {
+  if (retainedRuntimeTreatments.test(node.getName())) node.dispose();
+}
 // Decode Draco once during authoring; the deployed model uses an embedded
 // Meshopt decoder and requires no external CDN, worker script or WASM fetch.
 for (const extension of root.listExtensionsUsed()) {
   if (extension.extensionName === 'KHR_draco_mesh_compression') extension.dispose();
 }
 
-console.log('Removing unused resources and simplifying geometry…');
+console.log('Removing unused resources while preserving authored geometry…');
 await document.transform(
   prune({ keepLeaves: true }),
   dedup(),
   weld(),
 );
-const structuralMeshes = new Set(root.listNodes()
-  .filter(node => /^(Roof|Main_Studio|Studio_Block|RecordingBooth|Table_2|Table1)$/.test(node.getName()))
-  .map(node => node.getMesh()));
 const foregroundMeshes = new Set(root.listNodes()
   .filter(node => /^Chair_/.test(node.getName()))
   .map(node => node.getMesh()));
@@ -68,14 +70,6 @@ for (const mesh of root.listMeshes()) {
   const foreground = foregroundMeshes.has(mesh);
   for (const primitive of mesh.listPrimitives()) {
     if (foreground) detailedNormalMaps.add(primitive.getMaterial()?.getNormalTexture());
-    // Thin chair cushions and architectural edges are much more sensitive to
-    // simplification than distant props. Keep the shell and their shading.
-    if (!structuralMeshes.has(mesh)) simplifyPrimitive(primitive, {
-      simplifier: MeshoptSimplifier,
-      ratio: foreground ? 0.65 : 0.1,
-      error: foreground ? 0.0001 : 0.003,
-      lockBorder: foreground,
-    });
   }
 }
 
@@ -106,7 +100,7 @@ for (let i = 0; i < textures.length; i += 4) {
 }
 document.createExtension(EXTTextureWebP).setRequired(true);
 await document.transform(
-  meshopt({ encoder: MeshoptEncoder, level: 'high', quantizePosition: 14, quantizeTexcoord: 14 }),
+  meshopt({ encoder: MeshoptEncoder, level: 'high' }),
   prune({ keepLeaves: true }),
 );
 

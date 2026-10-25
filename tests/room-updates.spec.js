@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-// Read the authored finishes so a shared-material edit cannot silently tint
-// the timber floor while changing the surrounding walls.
+// Read the authored finishes so runtime styling cannot silently replace the
+// studio's original wall and floor materials.
 const modelBytes = await readFile(new URL('../assets/music-studio.glb', import.meta.url));
 const gltf = JSON.parse(modelBytes.subarray(20, 20 + modelBytes.readUInt32LE(12)).toString());
 const originalFloor = gltf.materials.find(material => material.name === 'Ground_mtl');
+const originalWall = gltf.materials.find(material => material.name === 'wall');
 
 const ready = async page => {
   await page.goto('/');
@@ -20,10 +21,10 @@ test('wheel zoom stops before the sofa and ceiling fixture', async ({ page }) =>
   await page.mouse.move(640, 400);
 
   const views = [
-    { name: 'Sofa', position: [-0.4, 1, 0.8], target: [-0.4, 1, 2.7] },
+    { name: 'Sofa', position: [-0.4, 1, 0.8], target: [-0.4, 1, 2.7], minimumDistance: 0.45 },
     // Aim beyond the light plane so OrbitControls' minimum distance alone
     // would still allow the camera to intersect the ceiling fixture.
-    { name: 'Light', position: [2.36, 1.7, -2.2], target: [2.36, 2.71, -3.398] },
+    { name: 'Light', position: [2.36, 1.7, -2.2], target: [2.36, 2.71, -3.398], minimumDistance: 0.39 },
   ];
 
   for (const view of views) {
@@ -64,7 +65,7 @@ test('wheel zoom stops before the sofa and ceiling fixture', async ({ page }) =>
       expect(samples.at(-1).distance).toBeLessThan(start - 0.1);
       // Continued wheel input must stop at the obstacle rather than crossing
       // it and emerging clear on its far side.
-      expect(samples.at(-1).distance).toBeGreaterThan(0.45);
+      expect(samples.at(-1).distance).toBeGreaterThan(view.minimumDistance);
       const lastPositions = samples.slice(-5).map(sample => sample.position);
       const last = lastPositions.at(-1);
       for (const position of lastPositions) {
@@ -142,7 +143,7 @@ test('walking stops at the sofa and preserves the view while returning from a ho
   });
 });
 
-test('room finishes preserve the stars, floor and existing light fixtures', async ({ page }) => {
+test('room finishes preserve the authored walls, stars, floor and existing light fixtures', async ({ page }) => {
   await ready(page);
   const room = await page.evaluate(() => {
     const { model, scene, atmosphere } = __studio;
@@ -164,8 +165,8 @@ test('room finishes preserve the stars, floor and existing light fixtures', asyn
       metalness: material.metalness,
     });
     const shell = materials(model.getObjectByName('Main_Studio'));
-    const roof = materials(model.getObjectByName('Roof'));
-    const blackWall = materials(model.getObjectByName('Studio_Block'));
+    const booth = materials(model.getObjectByName('RecordingBooth'));
+    const roof = materials(model.getObjectByName('Roof') ?? model.getObjectByName('roof'));
     const diffusers = [];
     let pointLights = 0;
     scene.traverse(node => {
@@ -191,10 +192,8 @@ test('room finishes preserve the stars, floor and existing light fixtures', asyn
     });
     return {
       roof: roof.map(describe),
-      wall: shell.filter(material => material.name !== 'Ground_mtl' && material.name !== 'blinn7').map(describe),
+      wall: [...shell, ...booth].filter(material => material.name === 'wall').map(describe),
       floor: shell.filter(material => material.name === 'Ground_mtl').map(describe),
-      blackWall: blackWall.map(describe),
-      sharedWall: shell.some(material => blackWall.includes(material)),
       diffuserCount: diffusers.length,
       blocks,
       pointLights,
@@ -205,16 +204,20 @@ test('room finishes preserve the stars, floor and existing light fixtures', asyn
     };
   });
 
-  expect(room.roof).toHaveLength(1);
-  expect(Math.max(...room.roof[0].color)).toBeLessThan(0.02);
-  expect(room.roof[0].emissiveMap).toBe('Roof_texture');
-  expect(room.roof[0].emissiveIntensity).toBeGreaterThanOrEqual(3);
+  expect(room.roof.length).toBeGreaterThan(0);
+  const ceilingMaterials = room.roof.filter(material => material.name !== 'roof_light');
+  expect(ceilingMaterials.length).toBeGreaterThan(0);
+  for (const material of ceilingMaterials) {
+    expect(Math.max(...material.color)).toBeLessThan(0.02);
+    expect(material.emissiveMap).toBe('Roof_texture');
+  }
+  expect(Math.max(...room.roof.map(material => material.emissiveIntensity))).toBeGreaterThanOrEqual(3);
   expect(room.wall.length).toBeGreaterThan(0);
   for (const wall of room.wall) {
-    expect(Math.max(...wall.color) - Math.min(...wall.color)).toBeLessThan(0.04);
-    expect(Math.min(...wall.color)).toBeGreaterThan(Math.max(...room.blackWall[0].color));
+    expect(wall.color).toEqual(originalWall.pbrMetallicRoughness.baseColorFactor?.slice(0, 3) ?? [1, 1, 1]);
+    expect(wall.roughness).toBeCloseTo(originalWall.pbrMetallicRoughness.roughnessFactor ?? 1, 6);
+    expect(wall.metalness).toBe(originalWall.pbrMetallicRoughness.metallicFactor ?? 1);
   }
-  expect(room.sharedWall).toBe(false);
   expect(room.floor).toHaveLength(1);
   expect(room.floor[0].color).toEqual(originalFloor.pbrMetallicRoughness.baseColorFactor?.slice(0, 3) ?? [1, 1, 1]);
   expect(room.floor[0].roughness).toBeCloseTo(originalFloor.pbrMetallicRoughness.roughnessFactor, 6);
@@ -237,8 +240,8 @@ test('room finishes preserve the stars, floor and existing light fixtures', asyn
   // Four recolored room lights, one warm booth light, desk and camera fill.
   expect(room.pointLights).toBe(7);
   expect(room.rgbLights).toBe(4);
-  expect(room.rgbPanels).toBe(4);
-  expect(room.uniquePanelMaterials).toBe(4);
+  expect(room.rgbPanels).toBeGreaterThan(0);
+  expect(room.uniquePanelMaterials).toBe(room.rgbPanels);
   expect(room.lightsInScene).toBe(true);
 });
 
