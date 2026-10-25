@@ -20,59 +20,19 @@ function finishSurfaces(model) {
 
 }
 
-function addDiffuser(model) {
-  const existing = model.getObjectByName('Studio_Acoustic_Diffuser');
-  if (existing) return existing;
+const AUTHORED_DIFFUSER_NAMES = [
+  'pCube146', 'pCube147', 'pCube148', 'pCube149', 'pCube150', 'pCube151',
+];
 
-  // A shallow skyline diffuser above the sofa, facing into the room (-Z).
-  // Quadratic residues give each block a different projection from the wall.
-  const diffuser = new THREE.Group();
-  diffuser.name = 'Studio_Acoustic_Diffuser';
-  diffuser.position.set(0, 1.98, 3.30);
-  const width = 2.06;
-  const height = 0.98;
-  const backing = new THREE.Mesh(
-    new THREE.BoxGeometry(width, height, 0.055),
-    new THREE.MeshStandardMaterial({ color: 0x141518, roughness: 0.95 }),
-  );
-  backing.name = 'Diffuser_Backing';
-  diffuser.add(backing);
-
-  const columns = 14;
-  const rows = 7;
-  const pitch = 0.136;
-  const blocks = new THREE.InstancedMesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshStandardMaterial({ color: 0x55585e, roughness: 0.8, metalness: 0.05 }),
-    columns * rows,
-  );
-  blocks.name = 'Diffuser_Blocks';
-  const transform = new THREE.Object3D();
-  for (let row = 0; row < rows; row++) {
-    for (let column = 0; column < columns; column++) {
-      const residue = (column * column + row * row) % 7;
-      const depth = 0.045 + residue * 0.032;
-      transform.position.set(
-        (column - (columns - 1) / 2) * pitch,
-        (row - (rows - 1) / 2) * pitch,
-        -0.0275 - depth / 2,
-      );
-      transform.scale.set(pitch - 0.009, pitch - 0.009, depth);
-      transform.updateMatrix();
-      blocks.setMatrixAt(row * columns + column, transform.matrix);
-    }
-  }
-  blocks.instanceMatrix.needsUpdate = true;
-  diffuser.add(blocks);
-  model.add(diffuser);
-  model.updateMatrixWorld(true);
-  return diffuser;
+function findAuthoredDiffusers(model) {
+  return AUTHORED_DIFFUSER_NAMES.map(name => model.getObjectByName(name)).filter(Boolean);
 }
 
 export function createStudioAtmosphere(model, { lights, ambientLight }) {
   if (atmospheres.has(model)) return atmospheres.get(model);
   finishSurfaces(model);
-  const diffuser = addDiffuser(model);
+  const diffusers = findAuthoredDiffusers(model);
+  const diffuser = diffusers[0] ?? null;
 
   // Reuse the four main-room fixtures and their lights. Each cloned emitting
   // surface follows its own light without recoloring other shared materials.
@@ -94,7 +54,7 @@ export function createStudioAtmosphere(model, { lights, ambientLight }) {
 
   let elapsed = 0;
   const atmosphere = {
-    diffuser, lights, panels, ambientLight,
+    diffuser, diffusers, lights, panels, ambientLight,
     get elapsed() { return elapsed; },
     update(dt, reducedMotion = false) {
       if (!reducedMotion) elapsed += dt;

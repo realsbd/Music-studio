@@ -6,7 +6,6 @@ import { createCameraCollision } from './camera-collision.js';
 import { createStudioAtmosphere } from './studio-atmosphere.js';
 import { loadStudioModel } from './model-loader.js';
 import { updateLoading, showLoadError, finishLoading } from './loading.js';
-import studioAsset from './assets/studio.json';
 
 // =====================================================================
 // INTERIOR CONFIG
@@ -636,10 +635,22 @@ HOTSPOTS.forEach(hs => {
 // Vite emits a hashed asset URL and includes it in dist automatically. No
 // root-folder file, third-party decoder URL or serverless function is needed.
 const modelURL = new URL('./assets/music-studio.glb', import.meta.url).href;
+const studioMetadataURL = new URL('./assets/studio.json', import.meta.url).href;
 let smoke = null;
 let atmosphere = null;
 
+async function loadStudioMetadata() {
+  const response = await fetch(studioMetadataURL);
+  if (!response.ok) throw new Error(`Studio metadata failed to load (HTTP ${response.status}).`);
+  const metadata = await response.json();
+  if (!Number.isFinite(metadata.byteLength) || !Array.isArray(metadata.smokeEmitters)) {
+    throw new Error('The studio metadata is missing or invalid.');
+  }
+  return metadata;
+}
+
 async function loadModel() {
+    const studioAsset = await loadStudioMetadata();
     const gltf = await loadStudioModel(modelURL, studioAsset.byteLength, updateLoading);
     const model = gltf.scene;
 

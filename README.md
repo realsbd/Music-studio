@@ -7,6 +7,8 @@ pnpm install
 pnpm dev
 ```
 
+You can also open `index.html` with VS Code Live Server after running `pnpm install`. The source version resolves Three.js, Meshoptimizer, and the local fonts directly from `node_modules`, so port 5500 works without a CDN.
+
 For a production build:
 
 ```sh

@@ -1,7 +1,7 @@
 <!-- 
   MUSIC STUDIO - Interactive 3D Portfolio
   ========================================
-  HOW TO RUN: pnpm install, then pnpm dev.
+  HOW TO RUN: pnpm install, then pnpm dev or open with VS Code Live Server.
   PRODUCTION: pnpm build (Vercel serves the generated dist directory).
   
   NOTE: ES modules do not work from file:// URLs in most browsers.
@@ -62,6 +62,15 @@
     </div>
   </div>
 
-  <script type="module" src="/bootstrap.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./node_modules/three/build/three.module.js",
+      "three/addons/": "./node_modules/three/examples/jsm/",
+      "meshoptimizer/": "./node_modules/meshoptimizer/"
+    }
+  }
+  </script>
+  <script type="module" src="./bootstrap.js"></script>
 </body>
 </html>

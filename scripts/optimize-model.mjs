@@ -44,12 +44,6 @@ const smokeEmitters = ['weed_Lit', 'weed_Lit.001'].map(name => {
 for (const node of root.listNodes()) {
   if (/^smoke/i.test(node.getName())) node.dispose();
 }
-// Keep the currently selected procedural ceiling and diffuser treatments.
-// These authored nodes belong to visual changes 1 and 4, which remain active.
-const retainedRuntimeTreatments = /^(pCube14[6-9]|pCube15[01])$/;
-for (const node of root.listNodes()) {
-  if (retainedRuntimeTreatments.test(node.getName())) node.dispose();
-}
 // Decode Draco once during authoring; the deployed model uses an embedded
 // Meshopt decoder and requires no external CDN, worker script or WASM fetch.
 for (const extension of root.listExtensionsUsed()) {

@@ -167,35 +167,22 @@ test('room finishes preserve the authored walls, stars, floor and existing light
     const shell = materials(model.getObjectByName('Main_Studio'));
     const booth = materials(model.getObjectByName('RecordingBooth'));
     const roof = materials(model.getObjectByName('Roof') ?? model.getObjectByName('roof'));
-    const diffusers = [];
+    const authoredDiffuserNames = ['pCube146', 'pCube147', 'pCube148', 'pCube149', 'pCube150', 'pCube151'];
+    const authoredDiffusers = authoredDiffuserNames.map(name => model.getObjectByName(name));
+    const authoredDiffuserMaterials = authoredDiffusers.map(object => materials(object).map(material => material.name));
+    const proceduralDiffusers = [];
     let pointLights = 0;
     scene.traverse(node => {
       if (node.isPointLight) pointLights++;
-      if (node.name === 'Studio_Acoustic_Diffuser') diffusers.push(node);
-    });
-    const diffuser = diffusers[0];
-    const blocks = [];
-    diffuser?.traverse(node => {
-      if (!node.isMesh) return;
-      if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
-      const addBounds = matrix => {
-        const box = node.geometry.boundingBox.clone().applyMatrix4(matrix);
-        blocks.push({ min: box.min.toArray(), max: box.max.toArray() });
-      };
-      if (node.isInstancedMesh) {
-        const instance = node.matrixWorld.clone();
-        for (let index = 0; index < node.count; index++) {
-          node.getMatrixAt(index, instance);
-          addBounds(node.matrixWorld.clone().multiply(instance));
-        }
-      } else addBounds(node.matrixWorld);
+      if (node.name === 'Studio_Acoustic_Diffuser') proceduralDiffusers.push(node);
     });
     return {
       roof: roof.map(describe),
       wall: [...shell, ...booth].filter(material => material.name === 'wall').map(describe),
       floor: shell.filter(material => material.name === 'Ground_mtl').map(describe),
-      diffuserCount: diffusers.length,
-      blocks,
+      authoredDiffuserNames: authoredDiffusers.map(object => object?.name),
+      authoredDiffuserMaterials,
+      proceduralDiffuserCount: proceduralDiffusers.length,
       pointLights,
       rgbLights: atmosphere.lights.length,
       rgbPanels: atmosphere.panels.flat().length,
@@ -225,18 +212,16 @@ test('room finishes preserve the authored walls, stars, floor and existing light
   expect(room.floor[0].map).toBe(true);
   expect(room.floor[0].repeat).toEqual([12, 6]);
 
-  expect(room.diffuserCount).toBe(1);
-  expect(room.blocks.length).toBeGreaterThan(1);
-  // The front black wall spans x +/-1.3, y 0..2.75, z 3.34;
-  // the diffuser belongs above the sofa and faces into the room.
-  for (const block of room.blocks) {
-    expect(block.min[0]).toBeGreaterThan(-1.31);
-    expect(block.max[0]).toBeLessThan(1.31);
-    expect(block.min[1]).toBeGreaterThan(1.315);
-    expect(block.max[1]).toBeLessThan(2.75);
-    expect(block.min[2]).toBeGreaterThan(2.8);
-    expect(block.max[2]).toBeLessThan(3.46);
-  }
+  expect(room.authoredDiffuserNames).toEqual([
+    'pCube146', 'pCube147', 'pCube148', 'pCube149', 'pCube150', 'pCube151',
+  ]);
+  expect(room.authoredDiffuserMaterials.slice(0, 4)).toEqual([
+    ['Diffuser_Mat'], ['Diffuser_Mat'], ['Diffuser_Mat'], ['Diffuser_Mat'],
+  ]);
+  expect(room.authoredDiffuserMaterials.slice(4)).toEqual([
+    ['Diffuser_fabric'], ['Diffuser_fabric'],
+  ]);
+  expect(room.proceduralDiffuserCount).toBe(0);
   // Four recolored room lights, one warm booth light, desk and camera fill.
   expect(room.pointLights).toBe(7);
   expect(room.rgbLights).toBe(4);

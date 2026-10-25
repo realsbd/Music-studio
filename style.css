@@ -4,11 +4,11 @@
   Edit hotspot positions in main.js (HOTSPOTS array at the top)
 */
 
-@import '@fontsource/bebas-neue/latin-400.css';
-@import '@fontsource/inter/latin-300.css';
-@import '@fontsource/inter/latin-400.css';
-@import '@fontsource/inter/latin-500.css';
-@import '@fontsource/inter/latin-600.css';
+@import './node_modules/@fontsource/bebas-neue/latin-400.css';
+@import './node_modules/@fontsource/inter/latin-300.css';
+@import './node_modules/@fontsource/inter/latin-400.css';
+@import './node_modules/@fontsource/inter/latin-500.css';
+@import './node_modules/@fontsource/inter/latin-600.css';
 
 /* ===== RESET & BASE ===== */
 *, *::before, *::after {
