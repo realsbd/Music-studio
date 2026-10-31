@@ -8,6 +8,9 @@ const asset = JSON.parse(await readFile(new URL('../assets/studio.json', import.
 const ready = async page => {
   await page.bringToFront();
   await page.waitForFunction(() => window.__studio?.loaded, null, { timeout: 60000 });
+  await expect(page.locator('#loading-screen')).toHaveAttribute('data-state', 'ready');
+  await expect(page.getByRole('button', { name: 'Enter Studio' })).toBeVisible();
+  await page.getByRole('button', { name: 'Enter Studio' }).click();
   await expect(page.locator('#loading-screen')).toBeHidden();
   await page.waitForFunction(() => window.__studio.isSettled(), null, { timeout: 15000 });
 };
@@ -58,6 +61,23 @@ test('desktop loads without a CDN, renders moving smoke, and opens all hotspots'
   });
   await page.goto('/');
   await ready(page);
+  await expect(page.locator('#site-logo')).toHaveCount(0);
+  const menuToggle = page.locator('#menu-toggle');
+  await expect(menuToggle).toBeVisible();
+  await expect(menuToggle).toHaveAccessibleName('Open studio menu');
+  await expect(menuToggle.locator('.menu-label')).toHaveCount(0);
+  await menuToggle.click();
+  await expect(menuToggle).toHaveAccessibleName('Close studio menu');
+  await expect(page.locator('#hud-hint')).toBeHidden();
+  await expect(page.locator('#studio-menu button')).toHaveCount(6);
+  expect(await page.locator('#studio-menu button').allTextContents()).toEqual([
+    'Home Enter page', 'Bio', 'Beat Store', 'Catalogue & Credits', 'Gallery', 'Contacts',
+  ]);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#hud-hint')).toBeVisible();
+  expect(await page.locator('#hud-hint span').allTextContents()).toEqual([
+    'Drag to look', 'Pinch to zoom', 'Tap orbs',
+  ]);
   expect(external).toEqual([]);
   await page.screenshot({ path: '.artifacts/studio-desktop.png' });
   console.log('Desktop render:', await page.evaluate(() => ({
@@ -108,31 +128,78 @@ test('desktop loads without a CDN, renders moving smoke, and opens all hotspots'
   await page.waitForFunction(() => __studio.isSettled());
   const panels = [
     ['tv', 'Catalogue & Credits', "Record Producer with a vision, I don't go to work, I put in work I'm the difference. Browse through my catalogue, browse through Toronto history."],
-    ['computer', 'Bio & Services', null],
+    ['computer', 'G.LO BEATZ | GARLOW', null],
     ['painting', 'Gallery', 'A visual archive of moments, art, and creative milestones.'],
     ['phone', 'Contact', "Ready to lock in? Reach out and let's make it happen."],
   ];
   for (const [id, title, description] of panels) {
     await page.evaluate(id => __studio.clickHotspot(id), id);
     await expect(page.locator('#overlay.active h2')).toHaveText(title);
+    await expect(page.locator('#hud-hint')).toBeHidden();
     if (description) await expect(page.locator('#overlay.active p').first()).toHaveText(description);
     if (id === 'tv') {
       const yearGroups = page.locator('#overlay.active .video-year-group');
       const videoLinks = page.locator('#overlay.active .video-link-card');
       await expect(yearGroups).toHaveCount(6);
       await expect(videoLinks).toHaveCount(74);
+      expect(await yearGroups.locator('.video-year-label').allTextContents()).toEqual([
+        '2015-2017', '2017-2018', '2018-2019',
+        '2019-2020', '2020-2021', '2022-2023',
+      ]);
       expect(await yearGroups.evaluateAll(groups => groups.map(group => group.querySelectorAll('a').length)))
         .toEqual([9, 10, 30, 12, 9, 4]);
+      expect(await yearGroups.evaluateAll(groups => groups.every(group => !group.open))).toBe(true);
+      await yearGroups.first().locator('summary').click();
+      await expect(yearGroups.first()).toHaveAttribute('open', '');
       await expect(videoLinks.first()).toHaveAttribute('href', 'https://www.youtube.com/watch?v=6KfKKQSNewo');
       await expect(videoLinks.last()).toHaveAttribute('href', 'https://www.youtube.com/watch?v=QC-9Ujv4dM8');
       expect(await videoLinks.evaluateAll(links => links.every(link =>
         link.target === '_blank' && link.rel === 'noopener noreferrer'
       ))).toBe(true);
     }
+    if (id === 'computer') {
+      const contentAccordions = page.locator('#overlay.active .content-accordion');
+      await expect(page.locator('#bio-heading')).toHaveText('Bio');
+      await expect(page.locator('#services-heading')).toHaveText('Services & Sessions');
+      await expect(contentAccordions).toHaveCount(2);
+      expect(await contentAccordions.evaluateAll(groups => groups.every(group => !group.open))).toBe(true);
+      await page.getByText('Read More', { exact: true }).click();
+      await expect(contentAccordions.first()).toHaveAttribute('open', '');
+      await expect(page.locator('.biography-copy p').first()).toContainText('over 15 million streams');
+      await page.getByText('More Info', { exact: true }).click();
+      await expect(contentAccordions.last()).toHaveAttribute('open', '');
+      await expect(page.locator('.service-details h4')).toHaveCount(6);
+    }
     await page.keyboard.press('Escape');
     await expect(page.locator('#overlay')).not.toHaveClass('active');
     await page.waitForFunction(() => __studio.isSettled());
   }
+
+  const spriteColors = await page.evaluate(() => Object.fromEntries(
+    __studio.spriteMaterials.map(material => [material.name, material.color.toArray()])
+  ));
+  expect(spriteColors['Material.021'][2]).toBeGreaterThan(spriteColors['Material.021'][0]);
+  expect(spriteColors['Material.021'][0]).toBeGreaterThan(spriteColors['Material.021'][1]);
+  expect(spriteColors.Sprite_Liquid[2]).toBeGreaterThan(spriteColors.Sprite_Liquid[1]);
+
+  await menuToggle.click();
+  await page.getByRole('button', { name: 'Contacts' }).click();
+  await expect(page.locator('#overlay.active h2')).toHaveText('Contact');
+  const phoneFramingError = await page.evaluate(() => {
+    const phone = __studio.hotspots.find(hotspot => hotspot.id === 'phone');
+    return __studio.camera.position.distanceTo(phone.cameraPos);
+  });
+  expect(phoneFramingError).toBeLessThan(0.03);
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => __studio.isSettled());
+
+  await menuToggle.click();
+  await page.getByRole('button', { name: /Home/ }).click();
+  await expect(page.locator('#loading-screen')).toHaveAttribute('data-state', 'ready');
+  await expect(page.getByRole('button', { name: 'Enter Studio' })).toBeVisible();
+  await page.getByRole('button', { name: 'Enter Studio' }).click();
+  await expect(page.locator('#loading-screen')).toBeHidden();
+  await page.waitForFunction(() => __studio.isSettled());
   expect(errors).toEqual([]);
 });
 
@@ -159,8 +226,53 @@ test('mobile respects reduced motion and resumes smoke when motion is enabled', 
     expect(await page.evaluate(() => __studio.renderer.getPixelRatio())).toBeLessThanOrEqual(1.5);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.waitForFunction(start => __studio.smoke.mesh.material.uniforms.uTime.value > start + 0.1, time);
-    await page.evaluate(() => __studio.clickHotspot('phone'));
-    await expect(page.locator('#overlay.active h2')).toHaveText('Contact');
+    const point = await page.evaluate(() => {
+      __studio.camera.updateMatrixWorld(true);
+      const position = __studio.hotspots
+        .find(hotspot => hotspot.id === 'beatstars')
+        .position.clone()
+        .project(__studio.camera);
+      return {
+        x: (position.x + 1) * innerWidth / 2,
+        y: (1 - position.y) * innerHeight / 2,
+      };
+    });
+    await page.touchscreen.tap(point.x, point.y);
+    await expect(page.locator('#overlay.active h2')).toHaveText('Beat Store');
+    await expect(page.locator('#hud-hint')).toBeHidden();
+    expect(errors).toEqual([]);
+  } finally {
+    await context.close();
+  }
+});
+
+test('tablet touch opens an orb directly without using the menu', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 820, height: 1180 }, deviceScaleFactor: 2,
+    isMobile: true, hasTouch: true, reducedMotion: 'reduce',
+  });
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  try {
+    await page.goto('http://127.0.0.1:4173/');
+    await ready(page);
+    const point = await page.evaluate(() => {
+      __studio.camera.updateMatrixWorld(true);
+      const position = __studio.hotspots
+        .find(hotspot => hotspot.id === 'beatstars')
+        .position.clone()
+        .project(__studio.camera);
+      return {
+        x: (position.x + 1) * innerWidth / 2,
+        y: (1 - position.y) * innerHeight / 2,
+      };
+    });
+    await page.touchscreen.tap(point.x, point.y);
+    await expect(page.locator('#overlay.active h2')).toHaveText('Beat Store');
+    await expect(page.locator('#studio-menu')).toBeHidden();
+    await expect(page.locator('#hud-hint')).toBeHidden();
     expect(errors).toEqual([]);
   } finally {
     await context.close();
@@ -175,6 +287,12 @@ test('a missing model offers retry and loads after the connection recovers', asy
   });
   await page.goto('/');
   await expect(page.locator('#loading-screen')).toHaveAttribute('data-state', 'error');
+  await expect(page.locator('#loading-logo')).toHaveAttribute('src', /logo(?:-[\w-]+)?\.jpeg$/);
+  await expect(page.locator('#loading-logo-top')).toHaveAttribute('src', /logo-top(?:-[\w-]+)?\.svg$/);
+  await expect(page.locator('#loading-subtitle')).toHaveText('VIRTUAL STUDIO EXPERIENCE™️');
+  await expect(page.locator('#loading-legal')).toHaveText(
+    'All rights reserved. ©️ 2026, MM ENT. - Multi-Million Ent.™️ | 15+ Million Streams'
+  );
   await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
   await expect(page.locator('#loading-status')).toContainText('try again');
   await page.getByRole('button', { name: 'Try again' }).click();

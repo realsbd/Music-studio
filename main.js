@@ -5,7 +5,7 @@ import { createSmoke } from './smoke.js';
 import { createCameraCollision } from './camera-collision.js';
 import { createStudioAtmosphere } from './studio-atmosphere.js';
 import { loadStudioModel } from './model-loader.js';
-import { updateLoading, showLoadError, finishLoading } from './loading.js';
+import { updateLoading, showLoadError, finishLoading, showEnterPage } from './loading.js';
 
 // =====================================================================
 // INTERIOR CONFIG
@@ -96,14 +96,14 @@ const HOTSPOTS = [
     id: 'phone',
     label: 'Contact  •  iPhone',
     position:     new THREE.Vector3(-0.33, 1.20, -0.61),  // above the phone on the desk
-    cameraPos:    new THREE.Vector3(-0.33, 1.72,  0.62),
+    cameraPos:    new THREE.Vector3(-0.33, 1.40,  0.10),
     cameraLookAt: new THREE.Vector3(-0.33, 0.93, -0.61)
   }
 ];
 
 const VIDEO_CATALOGUE = [
   {
-    label: '8 Years',
+    label: '2015-2017',
     videos: [
       'https://www.youtube.com/watch?v=6KfKKQSNewo',
       'https://www.youtube.com/watch?v=aau1r5nixlU',
@@ -117,7 +117,7 @@ const VIDEO_CATALOGUE = [
     ],
   },
   {
-    label: '7 Years',
+    label: '2017-2018',
     videos: [
       'https://www.youtube.com/watch?v=w19fN6PEkFM',
       'https://www.youtube.com/watch?v=iIZfWbR3PJE',
@@ -132,7 +132,7 @@ const VIDEO_CATALOGUE = [
     ],
   },
   {
-    label: '6 Years',
+    label: '2018-2019',
     videos: [
       'https://www.youtube.com/watch?v=NP3Ycfko6lk',
       'https://www.youtube.com/watch?v=ZrwYUawx6WQ',
@@ -167,7 +167,7 @@ const VIDEO_CATALOGUE = [
     ],
   },
   {
-    label: '5 Years',
+    label: '2019-2020',
     videos: [
       'https://www.youtube.com/watch?v=Ro66KTeoQ8M',
       'https://www.youtube.com/watch?v=jSS5spZmDNs',
@@ -184,7 +184,7 @@ const VIDEO_CATALOGUE = [
     ],
   },
   {
-    label: '4 Years',
+    label: '2020-2021',
     videos: [
       'https://www.youtube.com/watch?v=mvM-NWZR3Nc',
       'https://www.youtube.com/watch?v=n5Naz6nnBRY',
@@ -198,7 +198,7 @@ const VIDEO_CATALOGUE = [
     ],
   },
   {
-    label: '3 Years',
+    label: '2022-2023',
     videos: [
       'https://www.youtube.com/watch?v=UmtgjYDK85Y',
       'https://www.youtube.com/watch?v=hzLjPUeWaiM',
@@ -211,8 +211,8 @@ const VIDEO_CATALOGUE = [
 function renderVideoCatalogue() {
   return `
     <div class="video-catalogue">
-      ${VIDEO_CATALOGUE.map((group, groupIndex) => `
-        <details class="video-year-group" ${groupIndex === 0 ? 'open' : ''}>
+      ${VIDEO_CATALOGUE.map((group) => `
+        <details class="video-year-group">
           <summary>
             <span class="video-year-label">${group.label}</span>
             <span class="video-year-count">${group.videos.length} videos</span>
@@ -263,33 +263,103 @@ const OVERLAY_CONTENT = {
   `,
   computer: `
     <button class="back-btn" id="back-btn">← Back</button>
-    <h2>Bio &amp; Services</h2>
-    <div class="bio-section">
-      <p>Welcome to the studio — a creative sanctuary where sound becomes art. With years of experience crafting chart-ready records, this space is built for artists who refuse to compromise. From concept to final master, every project receives the full attention it deserves.</p>
-      <p>The studio is equipped with industry-standard gear, premium acoustics, and a workflow designed to bring out the best in every artist who walks through the door.</p>
-    </div>
-    <div class="services-grid">
-      <div class="service-card">
-        <div class="service-icon">🎙️</div>
-        <div class="service-name">Recording</div>
-        <p class="service-desc">Professional vocal and instrument recording sessions in an acoustically treated environment.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">🎚️</div>
-        <div class="service-name">Mixing</div>
-        <p class="service-desc">Precision stereo mixing that balances every element for a polished, radio-ready sound.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">💿</div>
-        <div class="service-name">Mastering</div>
-        <p class="service-desc">Final mastering to ensure your track sounds incredible on every platform and device.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">🎹</div>
-        <div class="service-name">Beat Production</div>
-        <p class="service-desc">Custom beat creation across all genres — trap, R&amp;B, hip-hop, afrobeats, and beyond.</p>
-      </div>
-    </div>
+    <h2>G.LO BEATZ <span class="title-divider" aria-hidden="true">|</span> GARLOW</h2>
+
+    <section class="profile-section" aria-labelledby="bio-heading">
+      <h3 id="bio-heading">Bio</h3>
+      <p class="profile-lede">Entrepreneur | A&amp;R | Executive Record Producer | AES-Certified Audio Engineer | 15+ Million Streams | Artist Development | Music &amp; Culture</p>
+      <details class="content-accordion">
+        <summary>
+          <span>Read More</span>
+          <span class="content-accordion-chevron" aria-hidden="true"></span>
+        </summary>
+        <div class="content-accordion-body biography-copy">
+          <p>Garlow, professionally known as “G.LO Beatz” &amp; “MixedByGarlow”, is a Toronto-based Executive Record Producer, AES-Certified Audio Engineer, and Entrepreneur with over 15 million streams across his catalogue.</p>
+          <p>Raised in a single-mother household, Garlow grew up in a shelter in Malvern, as well as TCHC and Toronto Metro Housing communities, including 17 Allenbury Gardens in North York, 103 West Lodge in Parkdale, 4175 West Hill in Scarborough, and 444 Lumsden Ave. in East York. These experiences shaped his resilience, vision, and determination to craft a sound that amplifies the real talent, energy, and culture that define Toronto’s rap scene.</p>
+          <p>Garlow played a pivotal role in developing Toronto’s underground rappers and singers. He built name-brand artists from the ground up while unknowingly shaping the sound, identity, and direction of an entire generation of the Canadian Trap &amp; Drill scene. His signature production and mixing style, recognized for its high-intensity chops, drops, and transitions, quickly became a defining influence adopted by studios, producers, and engineers across the entire country.</p>
+          <p>Toronto’s rap scene became widely recognized throughout the 2014–2021 era. From 2015 to 2022, Garlow operated MM ENT. out of his studio at the infamous 799 Brimley Road Plaza in Scarborough, a cornerstone of Toronto’s street culture. During a time when studio access and industry opportunities were limited, he created opportunities for some of the most underserved Black youth, people of colour, and communities, providing an exclusive, private sanctuary where emerging talent could develop their sound, find their voice, and receive the safety, guidance, and attention their artistry deserved.</p>
+          <p>This moment in time represents an intersection of real-life experiences from Toronto’s most deeply rooted communities, transitioning into social media, art, and opportunity. Garlow has generated over 15 million streams collectively, with music publicly promoted by Drake, Tory Lanez, Waka Flocka Flame, Casanova, Scotiabank Arena, the Toronto Raptors, OVO Sound Radio, Flow 93.5 FM, Dundas Square, Eaton Centre, the BLM Movement, and 6ixBuzzTV.</p>
+          <p>His work and collaborations include 17 Duvy, Robin Banks, Why-S, 3M French, Hypno Carlito, Smiley, Biz Loc, Lil 6, Biig Slime, Lil Berete, 730 Rarri, and Twy, alongside music collectives including OTF, GS9, Wass Gang, 2C6, IYC, NHS, 5IVE ENT., CLE, 10X, and Montreal’s Profit Boyz, with connections spanning Toronto, Montreal, Nova Scotia, Vancouver, and Chicago.</p>
+          <p>Beyond music, Garlow is the founder of Freedom Venue, a creative event space bringing thousands of artists, entrepreneurs, corporations, families, charities, and multicultural communities together to celebrate important milestones. Freedom Venue specializes in pristine audio production, 4K visuals, and RGB lighting. Services include full-service event management, staffing, catering, bar services, and custom décor.</p>
+          <p>Garlow's career has been entirely self-funded, built without the support of grants or partnerships. Through MM ENT. and Freedom Venue, and the collaboration of music and business, he continues to create opportunities, generate employment, build ownership, and invest in the culture and communities of Toronto while remaining authentically true to himself.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="profile-section" aria-labelledby="services-heading">
+      <h3 id="services-heading">Services &amp; Sessions</h3>
+      <p>Full-service music production, artist development, and professional audio engineering. From creative direction and custom beat-making to professional recording, mixing, and mastering, every project is developed with attention to detail and a signature sonic identity.</p>
+      <p>Specializing in industry-ready sound across Trap, Drill, Hip-Hop, R&amp;B, TrapSoul, Afrobeats, Lo-Fi, and more, bringing every project from concept to final master.</p>
+      <details class="content-accordion">
+        <summary>
+          <span>More Info</span>
+          <span class="content-accordion-chevron" aria-hidden="true"></span>
+        </summary>
+        <div class="content-accordion-body service-details">
+          <section>
+            <h4>Executive Production &amp; Artist Development</h4>
+            <ul>
+              <li><strong>Executive Producer:</strong> Collaborative creative direction and production oversight for your project, EP, mixtape, or album.</li>
+              <li><strong>Artist Development:</strong> Sound development, artistic identity, vocal direction, song selection, and musical positioning.</li>
+              <li><strong>A&amp;R Services:</strong> Artist discovery, talent development, record selection, and creative collaboration.</li>
+              <li><strong>Project Development:</strong> Concept development, track selection, sequencing, and overall project execution.</li>
+            </ul>
+          </section>
+          <section>
+            <h4>G.LO Beatz Production &amp; Beats</h4>
+            <ul>
+              <li><strong>Record Producer:</strong> Sonic direction and creative production for your single release.</li>
+              <li><strong>Music Production:</strong> Custom beats, original instrumentals, melodies, arrangements, and compositions.</li>
+              <li><strong>Sound Design:</strong> Custom samples, textures, effects, transitions, drops, and signature sonic elements.</li>
+              <li><strong>Vocal Production:</strong> Vocal arrangements, harmonies, layering, ad-libs, and performance direction.</li>
+            </ul>
+          </section>
+          <section>
+            <h4>Audio Recording &amp; Engineering</h4>
+            <ul>
+              <li><strong>Recording Engineer:</strong> Professional session control and pristine audio recording.</li>
+              <li><strong>Vocal Recording:</strong> Lead vocals, hooks, background vocals, harmonies, and ad-libs.</li>
+              <li><strong>Multi-Track Recording:</strong> Individual vocal and instrument recording.</li>
+              <li><strong>Session Management:</strong> Microphone selection, signal flow, gain staging, and recording workflow.</li>
+              <li><strong>Vocal Comping &amp; Editing:</strong> Performance selection, timing adjustments, vocal alignment, and session preparation.</li>
+            </ul>
+          </section>
+          <section>
+            <h4>Mixing</h4>
+            <ul>
+              <li><strong>Mixing Engineer:</strong> Full track-out mixing and 2-track mixing sessions.</li>
+              <li><strong>Full Track-Out Mixing:</strong> Individual track processing, balancing, panning, and professional mix development.</li>
+              <li><strong>2-Track Mixing:</strong> Professional vocal mixing over stereo instrumentals.</li>
+              <li><strong>Vocal Mixing &amp; Processing:</strong> EQ, compression, clarity, presence, reverb, delay, and effects.</li>
+              <li><strong>Signature Chops &amp; Drops:</strong> High-impact vocal edits, transitions, drops, chops, and customized production effects.</li>
+              <li><strong>Mix Revisions:</strong> Refinements and adjustments to achieve the intended sonic direction.</li>
+            </ul>
+          </section>
+          <section>
+            <h4>Mastering</h4>
+            <ul>
+              <li><strong>Mastering Engineer:</strong> Final audio balancing, loudness, clarity, and sonic consistency.</li>
+              <li><strong>Stereo Mastering:</strong> Final processing and optimization of completed mixes.</li>
+              <li><strong>Loudness Optimization:</strong> Playback-level consistency and competitive loudness.</li>
+              <li><strong>Streaming Preparation:</strong> Final master preparation for digital streaming platforms.</li>
+              <li><strong>Release-Ready Exports:</strong> Radio-Edits, Track-outs (Stems), WAV and MP3 deliverables.</li>
+            </ul>
+          </section>
+          <section>
+            <h4>Additional Music Services</h4>
+            <ul>
+              <li>Single, EP, Mixtape &amp; Album Production</li>
+              <li>Custom Intros, Outros &amp; Transitions</li>
+              <li>Vocal Editing &amp; Enhancement</li>
+              <li>Producer Collaborations</li>
+              <li>Studio &amp; Production Consultation</li>
+              <li>Project Sequencing &amp; Release Preparation</li>
+              <li>Audio Quality Control &amp; Final Delivery</li>
+            </ul>
+          </section>
+        </div>
+      </details>
+    </section>
   `,
   painting: `
     <button class="back-btn" id="back-btn">← Back</button>
@@ -362,19 +432,19 @@ const canvasContainer = document.getElementById('canvas-container');
 const tooltip         = document.getElementById('tooltip');
 const overlay         = document.getElementById('overlay');
 const overlayContent  = document.getElementById('overlay-panel-content');
+const studioNav       = document.getElementById('studio-nav');
+const menuToggle      = document.getElementById('menu-toggle');
+const studioMenu      = document.getElementById('studio-menu');
 const hudHint         = document.getElementById('hud-hint');
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const compactDevice = window.matchMedia('(max-width: 768px)').matches || (navigator.deviceMemory ?? 8) <= 4;
-if (window.matchMedia('(pointer: coarse)').matches) {
-  const hints = ['Drag to look', 'Pinch to zoom', 'Tap orbs'];
-  hudHint.querySelectorAll('span').forEach((span, index) => { span.textContent = hints[index]; });
-}
+const touchInput = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
 // =====================================================================
 // SCENE
 // =====================================================================
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x07070a);
+scene.background = new THREE.Color(0x020712);
 
 // =====================================================================
 // RENDERER
@@ -387,7 +457,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // panels plus the environment map below.
 renderer.shadowMap.enabled = false;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 0.84;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 canvasContainer.appendChild(renderer.domElement);
 
@@ -404,19 +474,19 @@ scene.environment = pmrem.fromScene(roomEnv, 0.04).texture;
 roomEnv.dispose();
 pmrem.dispose();
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+const ambientLight = new THREE.AmbientLight(0x79aeea, 0.2);
 scene.add(ambientLight);
-scene.add(new THREE.HemisphereLight(0xaec6ff, 0x2a1f14, 0.35));
+scene.add(new THREE.HemisphereLight(0x8fc7ff, 0x07101f, 0.62));
 
 // The five emissive ceiling panels baked into the GLB. These coordinates are
 // the exact world centres of the Light / Light.00x / Light-booth nodes, which
 // only line up because the model is no longer rescaled or offset.
 const studioLights = [
-  { name: 'Light',       pos: [ 2.36, 2.57, -3.40], color: 0xfff5e0, intensity: 7 },
-  { name: 'Light.004',   pos: [-1.69, 2.53, -3.42], color: 0xfff5e0, intensity: 7 },
-  { name: 'Light.001',   pos: [-2.45, 2.57,  0.62], color: 0xfff5e0, intensity: 7 },
-  { name: 'Light.002',   pos: [ 2.25, 2.57,  0.74], color: 0xfff5e0, intensity: 7 },
-  { name: 'Light-booth', pos: [ 0.14, 2.49, -6.64], color: 0xfff0cc, intensity: 8 }
+  { name: 'Light',       pos: [ 2.36, 2.57, -3.40], color: 0xb9ddff, intensity: 4.2 },
+  { name: 'Light.004',   pos: [-1.69, 2.53, -3.42], color: 0xb9ddff, intensity: 4.2 },
+  { name: 'Light.001',   pos: [-2.45, 2.57,  0.62], color: 0xb9ddff, intensity: 4.2 },
+  { name: 'Light.002',   pos: [ 2.25, 2.57,  0.74], color: 0xb9ddff, intensity: 4.2 },
+  { name: 'Light-booth', pos: [ 0.14, 2.49, -6.64], color: 0xd5edff, intensity: 4.8 }
 ];
 const ceilingLights = studioLights.map(({ name, pos, color, intensity }) => {
   const pl = new THREE.PointLight(color, intensity, 10, 2);
@@ -426,8 +496,8 @@ const ceilingLights = studioLights.map(({ name, pos, color, intensity }) => {
   return pl;
 });
 
-// Warm bounce off the back wall, behind the mixing desk.
-const deskGlow = new THREE.PointLight(0xffb866, 2.8, 5, 2);
+// Cool bounce off the back wall, matching the blue ceiling wash.
+const deskGlow = new THREE.PointLight(0x5f9bd7, 2.2, 6, 2);
 deskGlow.position.set(0, 1.5, -4.6);
 scene.add(deskGlow);
 
@@ -440,7 +510,7 @@ camera.position.copy(ROOM.startCam);
 camera.lookAt(ROOM.defaultLook);
 
 // A faint light riding the camera so dark corners are never pitch black.
-const headLight = new THREE.PointLight(0xffe8c8, 1.5, 6, 2);
+const headLight = new THREE.PointLight(0x8fbde8, 0.8, 6, 2);
 camera.add(headLight);
 scene.add(camera);
 
@@ -452,7 +522,6 @@ const defaultLookAt    = ROOM.defaultLook.clone();
 // =====================================================================
 let activeHotspot   = null;   // id of the open hotspot, or null
 let isTransitioning = false;  // true only while the camera is easing somewhere
-let hudHidden       = false;
 
 // =====================================================================
 // CONTROLS — orbit + pan + WASD walk, confined to the room interior
@@ -533,6 +602,64 @@ function updateTransition() {
   }
 }
 
+function setStudioMenuOpen(open) {
+  menuToggle.setAttribute('aria-expanded', String(open));
+  menuToggle.setAttribute('aria-label', `${open ? 'Close' : 'Open'} studio menu`);
+  studioMenu.hidden = !open;
+  syncHudHintVisibility();
+}
+
+function syncHudHintVisibility() {
+  hudHint.hidden = !studioMenu.hidden || activeHotspot !== null || overlay.classList.contains('active');
+}
+
+function closeStudioMenu() {
+  setStudioMenuOpen(false);
+}
+
+function returnToEnterPage() {
+  closeStudioMenu();
+  transition = null;
+  isTransitioning = false;
+  overlay.classList.remove('active');
+  activeHotspot = null;
+  syncHudHintVisibility();
+  controls.enabled = false;
+  camera.position.copy(ROOM.startCam);
+  previousCameraPosition.copy(camera.position);
+  controls.target.copy(defaultLookAt);
+  controls.update();
+  keepInsideRoom();
+  setHotspotsVisible(true);
+  showEnterPage();
+}
+
+menuToggle.addEventListener('click', () => {
+  setStudioMenuOpen(studioMenu.hidden);
+});
+
+studioMenu.addEventListener('click', (event) => {
+  const item = event.target.closest('button');
+  if (!item) return;
+  if (item.dataset.action === 'home') {
+    returnToEnterPage();
+    return;
+  }
+  const hotspotId = item.dataset.hotspot;
+  closeStudioMenu();
+  if (hotspotId) activateHotspot(hotspotId);
+});
+
+document.addEventListener('pointerdown', (event) => {
+  if (!studioMenu.hidden && !studioNav.contains(event.target)) closeStudioMenu();
+});
+
+window.addEventListener('studio:entered', () => {
+  closeStudioMenu();
+  controls.enabled = true;
+  startTransition(defaultCameraPos, defaultLookAt, INTRO_TRANSITION_MS);
+});
+
 // ---- WASD / arrow-key walking -------------------------------------------
 const heldKeys  = new Set();
 const walkFwd   = new THREE.Vector3();
@@ -550,7 +677,8 @@ window.addEventListener('keydown', (e) => {
     heldKeys.add(e.code);
     e.preventDefault();
   }
-  if (e.code === 'Escape' && activeHotspot) deactivateHotspot();
+  if (e.code === 'Escape' && !studioMenu.hidden) closeStudioMenu();
+  else if (e.code === 'Escape' && activeHotspot) deactivateHotspot();
 });
 window.addEventListener('keyup',  (e) => heldKeys.delete(e.code));
 window.addEventListener('blur',   ()  => heldKeys.clear());
@@ -595,38 +723,95 @@ function updateWalk(dt) {
 // =====================================================================
 const hotspotMeshes     = {};  // id → inner sphere
 const outerSpheres      = [];  // for pulse animation
-const hotspotRayTargets = [];  // flat list for raycasting
+const hotspotHitMeshes  = {};  // id → invisible enlarged tap target
+const hotspotRayTargets = [];  // flat list of enlarged interaction targets
+const hotspotPurple = 0x9b5cff;
 
 HOTSPOTS.forEach(hs => {
   // Inner glowing core
-  const innerGeo = new THREE.SphereGeometry(0.12, 16, 16);
+  const innerGeo = new THREE.SphereGeometry(0.055, 16, 16);
   const innerMat = new THREE.MeshStandardMaterial({
-    color: 0xc9a84c,
-    emissive: 0xc9a84c,
-    emissiveIntensity: 2
+    color: hotspotPurple,
+    emissive: hotspotPurple,
+    emissiveIntensity: 0.75
   });
   const inner = new THREE.Mesh(innerGeo, innerMat);
   inner.position.copy(hs.position);
   inner.userData.hotspotId = hs.id;
   scene.add(inner);
   hotspotMeshes[hs.id] = inner;
-  hotspotRayTargets.push(inner);
 
   // Outer pulse ring
-  const outerGeo = new THREE.SphereGeometry(0.22, 16, 16);
+  const outerGeo = new THREE.SphereGeometry(0.095, 16, 16);
   const outerMat = new THREE.MeshStandardMaterial({
-    color: 0xc9a84c,
-    emissive: 0xc9a84c,
-    emissiveIntensity: 0.5,
+    color: hotspotPurple,
+    emissive: hotspotPurple,
+    emissiveIntensity: 0.08,
     transparent: true,
-    opacity: 0.3
+    opacity: 0.07
   });
   const outer = new THREE.Mesh(outerGeo, outerMat);
   outer.position.copy(hs.position);
   outer.userData.hotspotId = hs.id;
   scene.add(outer);
   outerSpheres.push(outer);
+
+  // Keep the visible marker restrained while giving fingers a forgiving hit
+  // area. The target does not render or write to the depth buffer.
+  const hit = new THREE.Mesh(
+    new THREE.SphereGeometry(touchInput ? 0.36 : 0.27, 12, 12),
+    new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      colorWrite: false,
+      depthTest: false,
+      depthWrite: false,
+    }),
+  );
+  hit.position.copy(hs.position);
+  hit.userData.hotspotId = hs.id;
+  scene.add(hit);
+  hotspotHitMeshes[hs.id] = hit;
+  hotspotRayTargets.push(hit);
 });
+
+function setHotspotsVisible(visible) {
+  Object.values(hotspotMeshes).forEach(mesh => { mesh.visible = visible; });
+  outerSpheres.forEach(mesh => { mesh.visible = visible; });
+  hotspotRayTargets.forEach(mesh => { mesh.visible = visible; });
+}
+
+function recolorSpriteBottle(model) {
+  const bottleParts = [model.getObjectByName('Sprite'), model.getObjectByName('Sprite_Liquid')].filter(Boolean);
+  const recolored = [];
+  const colors = {
+    'Material.020': 0xa78bfa,
+    'Material.021': 0x8b5cf6,
+    'Material.015': 0xe9d5ff,
+    'Material.022': 0x6b21a8,
+    Sprite_Liquid: 0x7c3aed,
+  };
+
+  bottleParts.forEach(part => {
+    part.traverse(node => {
+      if (!node.isMesh || !node.material) return;
+      const tint = material => {
+        const copy = material.clone();
+        copy.color.setHex(colors[copy.name] ?? 0x8b5cf6);
+        if (copy.emissive) {
+          copy.emissive.setHex(copy.name === 'Sprite_Liquid' ? 0x2e1065 : 0x1e0a3c);
+          copy.emissiveIntensity = copy.name === 'Sprite_Liquid' ? 0.32 : 0.12;
+        }
+        copy.needsUpdate = true;
+        recolored.push(copy);
+        return copy;
+      };
+      node.material = Array.isArray(node.material) ? node.material.map(tint) : tint(node.material);
+    });
+  });
+
+  return recolored;
+}
 
 // =====================================================================
 // LOAD GLB
@@ -695,7 +880,13 @@ async function loadModel() {
       }
     });
 
-    atmosphere = createStudioAtmosphere(model, { lights: ceilingLights.slice(0, 4), ambientLight });
+    studioDebug.spriteMaterials = recolorSpriteBottle(model);
+
+    atmosphere = createStudioAtmosphere(model, {
+      lights: ceilingLights.slice(0, 4),
+      ambientLight,
+      compact: compactDevice,
+    });
     collision.addModel(model);
     scene.add(model);
     studioDebug.model = model;
@@ -754,6 +945,7 @@ async function loadModel() {
       if (!hs) continue;
       hs.position.copy(centre);
       hotspotMeshes[hsId]?.position.copy(centre);
+      hotspotHitMeshes[hsId]?.position.copy(centre);
       const idx = HOTSPOTS.indexOf(hs);
       outerSpheres[idx]?.position.copy(centre);
       console.log(`Snapped "${hsId}" → ${nodeName}`, centre);
@@ -764,23 +956,25 @@ async function loadModel() {
     updateLoading(96, 'Lighting the studio…');
     await renderer.compileAsync(scene, camera);
 
-    // Ease from the intro pose to the default interior view.
+    // Hold on the title view until the visitor chooses Enter.
     camera.position.copy(ROOM.startCam);
     controls.target.copy(defaultLookAt);
+    controls.enabled = false;
     controls.update();
     keepInsideRoom();
     renderer.render(scene, camera);
-    startTransition(defaultCameraPos, defaultLookAt, INTRO_TRANSITION_MS);
     studioDebug.loaded = true;
     finishLoading();
 }
 
 // =====================================================================
-// RAYCASTING / MOUSE
+// RAYCASTING / POINTER INPUT
 // =====================================================================
 const raycaster  = new THREE.Raycaster();
 const mouse      = new THREE.Vector2();
-let mouseDownPos = { x: 0, y: 0 };
+let pointerStart = null;
+const activeCanvasPointers = new Set();
+let multiPointerGesture = false;
 
 function updateMouseVec(e) {
   const rect = renderer.domElement.getBoundingClientRect();
@@ -808,21 +1002,38 @@ window.addEventListener('mousemove', (e) => {
   }
 });
 
-window.addEventListener('mousedown', (e) => {
-  mouseDownPos = { x: e.clientX, y: e.clientY };
+renderer.domElement.addEventListener('pointerdown', (event) => {
+  activeCanvasPointers.add(event.pointerId);
+  if (activeCanvasPointers.size > 1) multiPointerGesture = true;
+  if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+  pointerStart = {
+    id: event.pointerId,
+    type: event.pointerType,
+    x: event.clientX,
+    y: event.clientY,
+  };
 });
 
-window.addEventListener('mouseup', (e) => {
-  // Only treat as click if mouse barely moved (not a drag)
-  const dx = Math.abs(e.clientX - mouseDownPos.x);
-  const dy = Math.abs(e.clientY - mouseDownPos.y);
-  if (dx > 5 || dy > 5) return;
+renderer.domElement.addEventListener('pointerup', (event) => {
+  activeCanvasPointers.delete(event.pointerId);
+  const start = pointerStart;
+  if (start?.id === event.pointerId) pointerStart = null;
+  const wasMultiPointerGesture = multiPointerGesture;
+  if (activeCanvasPointers.size === 0) multiPointerGesture = false;
+  if (!start || wasMultiPointerGesture) return;
 
-  updateMouseVec(e);
+  // Allow a little natural finger drift while keeping drag-to-look distinct
+  // from an intentional tap.
+  const dx = event.clientX - start.x;
+  const dy = event.clientY - start.y;
+  const threshold = start.type === 'touch' ? 14 : 5;
+  if (Math.hypot(dx, dy) > threshold) return;
+
+  updateMouseVec(event);
   raycaster.setFromCamera(mouse, camera);
 
   // INSPECT MODE: if holding Shift, log the world position of clicked mesh
-  if (e.shiftKey && window._modelMeshes) {
+  if (event.shiftKey && window._modelMeshes) {
     const inspectHits = raycaster.intersectObjects(window._modelMeshes, false);
     if (inspectHits.length > 0) {
       const hit = inspectHits[0];
@@ -845,6 +1056,12 @@ window.addEventListener('mouseup', (e) => {
   }
 });
 
+renderer.domElement.addEventListener('pointercancel', (event) => {
+  activeCanvasPointers.delete(event.pointerId);
+  if (pointerStart?.id === event.pointerId) pointerStart = null;
+  if (activeCanvasPointers.size === 0) multiPointerGesture = false;
+});
+
 // =====================================================================
 // HOTSPOT ACTIVATE / DEACTIVATE
 // =====================================================================
@@ -852,19 +1069,21 @@ function activateHotspot(id) {
   const hs = HOTSPOTS.find(h => h.id === id);
   if (!hs) return;
 
+  overlay.classList.remove('active');
   activeHotspot = id;
+  syncHudHintVisibility();
   controls.enabled = false;
   tooltip.style.display = 'none';
   document.body.style.cursor = '';
 
   // Hide all hotspot meshes during zoom
-  hotspotRayTargets.forEach(m => m.visible = false);
-  outerSpheres.forEach(m => m.visible = false);
+  setHotspotsVisible(false);
 
   // Fly to the framing, then open the panel once the camera has actually arrived.
   startTransition(hs.cameraPos, hs.cameraLookAt, TRANSITION_MS, () => {
     overlayContent.innerHTML = OVERLAY_CONTENT[id] || `<button class="back-btn" id="back-btn">← Back</button><h2>${hs.label}</h2>`;
     overlay.classList.add('active');
+    syncHudHintVisibility();
 
     // Wire up contact form if present
     const form = document.getElementById('contact-form');
@@ -881,11 +1100,6 @@ function activateHotspot(id) {
       backBtn.addEventListener('click', deactivateHotspot);
     }
 
-    // Hide HUD hint once user has interacted
-    if (!hudHidden) {
-      hudHint.classList.add('hidden');
-      hudHidden = true;
-    }
   });
 }
 
@@ -895,12 +1109,12 @@ function deactivateHotspot() {
   overlay.classList.remove('active');
   controls.enabled = true;
   activeHotspot = null;
+  syncHudHintVisibility();
 
   startTransition(defaultCameraPos, defaultLookAt);
 
   // Restore hotspot markers
-  hotspotRayTargets.forEach(m => m.visible = true);
-  outerSpheres.forEach(m => m.visible = true);
+  setHotspotsVisible(true);
 }
 
 // Click dark overlay background to close
@@ -920,6 +1134,7 @@ const studioDebug = {
   model: null,
   smoke: null,
   atmosphere: null,
+  spriteMaterials: [],
   loaded: false,
   shellBox: null,
   get hotspots() { return HOTSPOTS; },
@@ -991,11 +1206,11 @@ function animate() {
   // Pulse outer spheres
   const t = performance.now() * 0.003;
   outerSpheres.forEach((sphere, i) => {
-    sphere.scale.setScalar(motionPreference.matches ? 1 : 1 + 0.3 * Math.sin(t + i * 0.7));
+    sphere.scale.setScalar(motionPreference.matches ? 1 : 1 + 0.08 * Math.sin(t + i * 0.7));
   });
 
   // Slowly rotate inner orbs
-  hotspotRayTargets.forEach((mesh) => {
+  Object.values(hotspotMeshes).forEach((mesh) => {
     if (!motionPreference.matches) mesh.rotation.y += dt * 0.5;
   });
 

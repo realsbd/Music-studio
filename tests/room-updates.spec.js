@@ -12,6 +12,8 @@ const ready = async page => {
   await page.goto('/');
   await page.bringToFront();
   await page.waitForFunction(() => window.__studio?.loaded, null, { timeout: 60000 });
+  await expect(page.getByRole('button', { name: 'Enter Studio' })).toBeVisible();
+  await page.getByRole('button', { name: 'Enter Studio' }).click();
   await expect(page.locator('#loading-screen')).toBeHidden();
   await page.waitForFunction(() => window.__studio.isSettled());
 };
@@ -157,6 +159,7 @@ test('room finishes preserve the authored walls, stars, floor and existing light
     const describe = material => ({
       name: material.name,
       color: material.color.toArray(),
+      emissive: material.emissive?.toArray(),
       emissiveMap: material.emissiveMap?.name,
       emissiveIntensity: material.emissiveIntensity,
       map: Boolean(material.map),
@@ -187,6 +190,16 @@ test('room finishes preserve the authored walls, stars, floor and existing light
       rgbLights: atmosphere.lights.length,
       rgbPanels: atmosphere.panels.flat().length,
       uniquePanelMaterials: new Set(atmosphere.panels.flat()).size,
+      panelColors: atmosphere.panels.flat().map(material => material.color.toArray()),
+      perimeter: atmosphere.perimeterMaterials.map(describe),
+      perimeterGlowOpacities: atmosphere.perimeterBars.glows.map(material => material.opacity),
+      perimeterSpillOpacities: atmosphere.perimeterBars.spills.map(material => material.opacity),
+      perimeterDimensions: atmosphere.perimeterBars.dimensions,
+      lightIntensities: atmosphere.lights.map(light => light.intensity),
+      perimeterBarCount: atmosphere.perimeterBars.cores.length,
+      fixtureCoverInScene: scene.getObjectById(atmosphere.fixtureCover.id) === atmosphere.fixtureCover,
+      twinkleCount: atmosphere.twinkles.geometry.attributes.position.count,
+      twinklesInScene: scene.getObjectById(atmosphere.twinkles.id) === atmosphere.twinkles,
       lightsInScene: atmosphere.lights.every(light => scene.getObjectById(light.id) === light),
     };
   });
@@ -198,7 +211,7 @@ test('room finishes preserve the authored walls, stars, floor and existing light
     expect(Math.max(...material.color)).toBeLessThan(0.02);
     expect(material.emissiveMap).toBe('Roof_texture');
   }
-  expect(Math.max(...room.roof.map(material => material.emissiveIntensity))).toBeGreaterThanOrEqual(3);
+  expect(Math.max(...room.perimeter.map(material => material.emissiveIntensity))).toBe(0);
   expect(room.wall.length).toBeGreaterThan(0);
   for (const wall of room.wall) {
     expect(wall.color).toEqual(originalWall.pbrMetallicRoughness.baseColorFactor?.slice(0, 3) ?? [1, 1, 1]);
@@ -222,15 +235,31 @@ test('room finishes preserve the authored walls, stars, floor and existing light
     ['Diffuser_fabric'], ['Diffuser_fabric'],
   ]);
   expect(room.proceduralDiffuserCount).toBe(0);
-  // Four recolored room lights, one warm booth light, desk and camera fill.
+  // Four recolored room lights, one booth light, desk and camera fill.
   expect(room.pointLights).toBe(7);
   expect(room.rgbLights).toBe(4);
   expect(room.rgbPanels).toBeGreaterThan(0);
   expect(room.uniquePanelMaterials).toBe(room.rgbPanels);
+  for (const color of room.panelColors) expect(Math.max(...color)).toBeLessThan(0.02);
+  expect(room.perimeter.length).toBeGreaterThan(0);
+  expect(Math.max(...room.perimeter[0].color)).toBeLessThan(0.02);
+  expect(Math.max(...room.perimeter[0].emissive)).toBe(0);
+  expect(Math.min(...room.perimeterGlowOpacities)).toBeGreaterThanOrEqual(0.14);
+  expect(Math.max(...room.perimeterGlowOpacities)).toBeLessThanOrEqual(0.22);
+  expect(Math.min(...room.perimeterSpillOpacities)).toBeGreaterThanOrEqual(0.03);
+  expect(Math.max(...room.perimeterSpillOpacities)).toBeLessThanOrEqual(0.07);
+  expect(room.perimeterDimensions.coreDepth).toBeCloseTo(0.072, 3);
+  expect(room.perimeterDimensions.glowDepth).toBeCloseTo(0.24, 3);
+  expect(room.perimeterDimensions.spillDepth).toBeCloseTo(0.48, 3);
+  expect(Math.max(...room.lightIntensities)).toBeLessThanOrEqual(4.05);
+  expect(room.perimeterBarCount).toBe(4);
+  expect(room.fixtureCoverInScene).toBe(true);
+  expect(room.twinkleCount).toBeGreaterThanOrEqual(130);
+  expect(room.twinklesInScene).toBe(true);
   expect(room.lightsInScene).toBe(true);
 });
 
-test('ambient RGB glows slowly, freezes for reduced motion and resumes', async ({ page }) => {
+test('ambient blue lighting glows slowly, freezes for reduced motion and resumes', async ({ page }) => {
   await ready(page);
   const sampleFrames = () => page.evaluate(() => new Promise(resolve => {
     const frames = [];
@@ -265,4 +294,28 @@ test('ambient RGB glows slowly, freezes for reduced motion and resumes', async (
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   const resumed = await sampleFrames();
   expect(resumed.at(-1)).not.toEqual(resumed[0]);
+
+  const perimeterSequence = await page.evaluate(() => {
+    const atmosphere = __studio.atmosphere;
+    const advanceTo = target => {
+      const delta = (target - atmosphere.elapsed % 24 + 24) % 24;
+      atmosphere.update(delta, false);
+      return atmosphere.perimeterBars.cores[0].color.toArray();
+    };
+    return { coolA: advanceTo(9), coolB: advanceTo(20) };
+  });
+  expect(perimeterSequence.coolA[2]).toBeGreaterThan(perimeterSequence.coolA[0] + 0.1);
+  expect(perimeterSequence.coolB[2]).toBeGreaterThan(perimeterSequence.coolB[0] + 0.1);
+  expect(perimeterSequence.coolB).not.toEqual(perimeterSequence.coolA);
+
+  const twinkleFrames = await page.evaluate(() => new Promise(resolve => {
+    const frames = [];
+    const next = () => {
+      frames.push(Array.from(__studio.atmosphere.twinkles.geometry.attributes.color.array.slice(0, 24)));
+      if (frames.length === 12) resolve(frames);
+      else requestAnimationFrame(next);
+    };
+    requestAnimationFrame(next);
+  }));
+  expect(twinkleFrames.at(-1)).not.toEqual(twinkleFrames[0]);
 });

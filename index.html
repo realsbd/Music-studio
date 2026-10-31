@@ -19,21 +19,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>THE STUDIO — Premium Recording Experience</title>
-  <link rel="icon" href="data:," />
+  <title>G.LO BEATZ &mdash; Virtual Studio Experience</title>
+  <link rel="icon" type="image/jpeg" href="./assets/logo.jpeg" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <!-- Loading Screen -->
   <div id="loading-screen" data-state="loading">
-    <div id="loading-title">THE STUDIO</div>
-    <div id="loading-subtitle">Premium Recording Experience</div>
+    <div id="loading-brand">
+      <img id="loading-logo-top" src="./assets/logo-top.svg" alt="" aria-hidden="true" />
+      <img id="loading-logo" src="./assets/logo.jpeg" alt="G.LO BEATZ" />
+    </div>
+    <h1 id="loading-title" class="visually-hidden">G.LO BEATZ</h1>
+    <div id="loading-subtitle">VIRTUAL STUDIO EXPERIENCE&#8482;&#65039;</div>
+    <p id="loading-legal">All rights reserved. &#169;&#65039; 2026, MM ENT. - Multi-Million Ent.&#8482;&#65039; | 15+ Million Streams</p>
     <div id="loading-bar-wrap" role="progressbar" aria-label="Loading studio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
       <div id="loading-bar"></div>
     </div>
     <div id="loading-percent" aria-hidden="true">0%</div>
     <p id="loading-status" role="status" aria-live="polite">Loading the studio…</p>
+    <button id="loading-enter" type="button" hidden>Enter Studio</button>
     <button id="loading-retry" type="button" hidden>Try again</button>
   </div>
 
@@ -43,16 +49,41 @@
   <!-- Vignette overlay -->
   <div id="vignette"></div>
 
+  <!-- Studio navigation -->
+  <nav id="studio-nav" aria-label="Studio navigation">
+    <button
+      id="menu-toggle"
+      type="button"
+      aria-label="Open studio menu"
+      aria-expanded="false"
+      aria-controls="studio-menu"
+    >
+      <span class="menu-icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+    <div id="studio-menu" hidden>
+      <button type="button" data-action="home">Home <span>Enter page</span></button>
+      <button type="button" data-hotspot="computer">Bio</button>
+      <button type="button" data-hotspot="beatstars">Beat Store</button>
+      <button type="button" data-hotspot="tv">Catalogue &amp; Credits</button>
+      <button type="button" data-hotspot="painting">Gallery</button>
+      <button type="button" data-hotspot="phone">Contacts</button>
+    </div>
+  </nav>
+
   <!-- Tooltip -->
   <div id="tooltip"></div>
 
   <!-- HUD hint -->
   <div id="hud-hint">
-    <span>Drag to look around</span>
+    <span>Drag to look</span>
     <div class="dot"></div>
-    <span>WASD to walk</span>
+    <span>Pinch to zoom</span>
     <div class="dot"></div>
-    <span>Click glowing orbs to interact</span>
+    <span>Tap orbs</span>
   </div>
 
   <!-- Overlay -->
